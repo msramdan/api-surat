@@ -179,4 +179,16 @@ class Surat_Masuk
 		return false;
 	}
 
+	public function getOldFileNames($id)
+	{
+		$stmtFetch = $this->conn->prepare("SELECT image_surat, lampiran FROM " . $this->itemsTable . " WHERE id = ?");
+		$id = htmlspecialchars(strip_tags($id));
+		$stmtFetch->bind_param("i", $id);
+		$stmtFetch->execute();
+		$stmtFetch->bind_result($oldImage_surat, $oldLampiran);
+		$stmtFetch->fetch();
+		$stmtFetch->close();
+
+		return array('image_surat' => $oldImage_surat, 'lampiran' => $oldLampiran);
+	}
 }
