@@ -1,0 +1,6 @@
+RewriteEngine On    # Turn on the rewriting engine
+RewriteRule ^login$ login.php [NC,L]
+RewriteRule ^update$ update.php [NC,L]
+RewriteRule ^read$ read.php [NC,L]
+RewriteRule ^create$ create.php [NC,L]
+RewriteRule ^delete$ delete.php [NC,L]

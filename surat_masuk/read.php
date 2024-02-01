@@ -1,0 +1,60 @@
+<?php
+
+session_start();
+
+// Periksa sesi untuk memastikan pengguna telah login
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(array("message" => "Unauthorized. Harap login terlebih dahulu."));
+    exit();
+}
+
+
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+
+include_once '../config/Database.php';
+include_once '../class/Surat_Masuk.php';
+
+$database = new Database();
+$db = $database->getConnection();
+ 
+$suratMasuk = new Surat_Masuk($db);
+
+$suratMasuk->id = (isset($_GET['id']) && $_GET['id']) ? $_GET['id'] : '0';
+
+$result = $suratMasuk->read();
+
+if($result->num_rows > 0){    
+    $suratRecords=array();
+    $suratRecords["surat_masuk"]=array(); 
+	while ($suratMasuk = $result->fetch_assoc()) { 	
+        extract($suratMasuk); 
+        $suratDetails=array(
+            "id" => $id,
+            "tgl_penerimaan" => $tgl_penerimaan,
+            "tgl_surat" => $tgl_surat,
+			"no_surat" => $no_surat,
+            "kategori" => $kategori,
+            "lampiran" => $lampiran,
+			"dari_mana" => $dari_mana,
+            "perihal" => $perihal,
+            "keterangan" => $keterangan,
+            "image_surat" => $image_surat,
+            "klasifikasi" => $klasifikasi,
+            "derajat" => $derajat,
+			"nomor_agenda" => $nomor_agenda,
+            "isi_disposisi" => $isi_disposisi,
+            "diteruskan_kepada" => $diteruskan_kepada
+        ); 
+       array_push($suratRecords["surat_masuk"], $suratDetails);
+    }    
+    http_response_code(200);     
+    echo json_encode($suratRecords);
+}else{     
+    http_response_code(404);     
+    echo json_encode(
+        array("message" => "No item found.")
+    );
+} 
+?>
