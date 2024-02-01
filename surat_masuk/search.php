@@ -15,6 +15,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 include_once '../config/Database.php';
 include_once '../class/Surat_Masuk.php';
+include_once '../config/config.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -30,17 +31,27 @@ if ($result->num_rows > 0) {
     $suratRecords["surat_masuk"] = array();
     while ($suratMasuk = $result->fetch_assoc()) {
         extract($suratMasuk);
+        $lampiran_url = null;
+        if ($lampiran !== null && $lampiran !== '') {
+            $lampiran_url = $base_url . '/user' . $lampiran;
+        }
+
+        $image_surat_url = null;
+        if ($image_surat !== null && $image_surat !== '') {
+            $image_surat_url = $base_url . '/user' . $image_surat;
+        }
+
         $suratDetails = array(
             "id" => $id,
             "tgl_penerimaan" => $tgl_penerimaan,
             "tgl_surat" => $tgl_surat,
             "no_surat" => $no_surat,
             "kategori" => $kategori,
-            "lampiran" => $lampiran,
+            "lampiran" => $lampiran_url,
             "dari_mana" => $dari_mana,
             "perihal" => $perihal,
             "keterangan" => $keterangan,
-            "image_surat" => $image_surat,
+            "image_surat" => $image_surat_url,
             "klasifikasi" => $klasifikasi,
             "derajat" => $derajat,
             "nomor_agenda" => $nomor_agenda,

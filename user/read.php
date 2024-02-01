@@ -7,6 +7,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 include_once '../config/database.php';
 include_once '../class/User.php';
+include_once '../config/config.php';
 
 // Memulai sesi
 session_start();
@@ -31,6 +32,12 @@ if ($result->num_rows > 0) {
     $userRecords["user"] = array();
     while ($user = $result->fetch_assoc()) {
         extract($user);
+
+        $image_profile_url = null;
+        if ($image_profile !== null && $image_profile !== '') {
+            $image_profile_url = $base_url . '/user' . $image_profile;
+        }
+
         $userDetails = array(
             "id" => $id,
             "username" => $username,
@@ -40,7 +47,7 @@ if ($result->num_rows > 0) {
             "bidang_pekerjaan" => $bidang_pekerjaan,
             "no_hp" => $no_hp,
             "level" => $level,
-            "image_profile" => $image_profile
+            "image_profile" => $image_profile_url,
         );
         array_push($userRecords["user"], $userDetails);
     }
@@ -52,4 +59,3 @@ if ($result->num_rows > 0) {
         array("message" => "No item found.")
     );
 }
-?>
