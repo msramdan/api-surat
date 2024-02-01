@@ -139,21 +139,44 @@ class Surat_Masuk
 	}
 
 
+
 	function delete()
 	{
-
-		$stmt = $this->conn->prepare("
-			DELETE FROM " . $this->itemsTable . " 
-			WHERE id = ?");
-
+		// Fetch file names from the database
+		$stmtFetch = $this->conn->prepare("SELECT image_surat, lampiran FROM " . $this->itemsTable . " WHERE id = ?");
 		$this->id = htmlspecialchars(strip_tags($this->id));
+		$stmtFetch->bind_param("i", $this->id);
+		$stmtFetch->execute();
+		$stmtFetch->bind_result($image_surat, $lampiran);
+		$stmtFetch->fetch();
+		$stmtFetch->close();
 
-		$stmt->bind_param("i", $this->id);
+		// Delete record from the database
+		$stmtDelete = $this->conn->prepare("DELETE FROM " . $this->itemsTable . " WHERE id = ?");
+		$stmtDelete->bind_param("i", $this->id);
+		$resultDelete = $stmtDelete->execute();
+		$stmtDelete->close();
 
-		if ($stmt->execute()) {
+		if ($resultDelete) {
+			// Unlink associated files
+			if ($image_surat) {
+				$imagePath = '../assets/surat_masuk/' . $image_surat;
+				if (file_exists($imagePath)) {
+					unlink($imagePath);
+				}
+			}
+
+			if ($lampiran) {
+				$lampiranPath = '../assets/surat_masuk/' . $lampiran;
+				if (file_exists($lampiranPath)) {
+					unlink($lampiranPath);
+				}
+			}
+
 			return true;
 		}
 
 		return false;
 	}
+
 }
