@@ -1,17 +1,6 @@
 <?php
-
-session_start();
-
 $database = new Database();
 $db = $database->getConnection();
-
-// Periksa sesi untuk memastikan pengguna telah login
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(array("message" => "Unauthorized. Harap login terlebih dahulu."));
-    exit();
-}
-
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
