@@ -19,19 +19,23 @@ if (!empty($data->username) && !empty($data->password)) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Simpan informasi pengguna dalam sesi
-        session_start();
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['level'] = $user['level'];
+        // Generate a unique token
+        $token = bin2hex(random_bytes(32));
+
+        // Set token expiration time (e.g., 1 hour from now)
+        $expiration_time = time() + 3600;
+
+        // Save the token and expiration time in the database
+        $updateTokenQuery = "UPDATE user SET token = '$token', token_expiration = '$expiration_time' WHERE id = {$user['id']}";
+        $db->query($updateTokenQuery);
 
         http_response_code(200);
         echo json_encode(array(
+            "token" => $token,
             "id" => $user['id'],
             "nama_lengkap" => $user['nama_lengkap'],
             "email" => $user['email'],
             "username" => $user['username'],
-            "password" => $user['password'],
             "bidang_pekerjaan" => $user['bidang_pekerjaan'],
             "no_hp" => $user['no_hp'],
             "level" => $user['level'],

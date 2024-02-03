@@ -5,14 +5,29 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-// Memulai sesi
-session_start();
+include_once '../config/database.php';
+include_once '../config/token_validation.php';
 
-// Hapus semua variabel sesi
-$_SESSION = array();
+$database = new Database();
+$db = $database->getConnection();
 
-// Hancurkan sesi
-session_destroy();
+$headers = getallheaders();
+$token = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
-http_response_code(200);
-echo json_encode(array("message" => "Logout berhasil."));
+if (!empty($token)) {
+    if (validateToken($db, $token)) {
+        $tokenParts = explode(" ", $token);
+        $actualToken = $tokenParts[1];
+        $updateTokenQuery = "UPDATE user SET token = null, token_expiration = null WHERE token = '$actualToken'";
+        $db->query($updateTokenQuery);
+        http_response_code(200);
+        echo json_encode(array("message" => "Logout berhasil."));
+    } else {
+        http_response_code(401);
+        echo json_encode(array("message" => "Token tidak valid atau sudah kadaluarsa."));
+    }
+} else {
+    http_response_code(401);
+    echo json_encode(array("message" => "Token tidak ditemukan dalam header."));
+}
+?>
