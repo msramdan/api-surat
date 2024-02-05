@@ -5,11 +5,17 @@ header("Content-Type: application/json; charset=UTF-8");
 include_once '../config/Database.php';
 include_once '../class/Surat_Keluar.php';
 include_once '../config/config.php';
+include_once '../config/token_validation.php';
 
 $database = new Database();
 $db = $database->getConnection();
 
-$suratKeluar = new Surat_Keluar($db);
+
+$headers = getallheaders();
+$token = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+if (!empty($token)) {
+    if (validateToken($db, $token)) {
+        $suratKeluar = new Surat_Keluar($db);
 
 $suratKeluar->perihal = (isset($_GET['perihal']) && $_GET['perihal']) ? $_GET['perihal'] : '';
 
@@ -52,4 +58,13 @@ if ($result->num_rows > 0) {
     echo json_encode(
         array("message" => "No item found.")
     );
+}
+
+    } else {
+        http_response_code(401);
+        echo json_encode(array("message" => "Token tidak valid atau sudah kadaluarsa."));
+    }
+} else {
+    http_response_code(401);
+    echo json_encode(array("message" => "Token tidak ditemukan dalam header."));
 }

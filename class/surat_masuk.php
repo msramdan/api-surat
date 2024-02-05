@@ -31,14 +31,13 @@ class Surat_Masuk
 			$stmt->bind_param("i", $this->id);
 			$stmt->execute();
 		} else {
-			$level = $_SESSION['level'];
-			if ($level == 'Admin' || $level == 'Pimpinan') {
+			// if ($level == 'Admin' || $level == 'Pimpinan') {
 				$stmt = $this->conn->prepare("SELECT * FROM " . $this->itemsTable);
-			} else {
-				$stmt = $this->conn->prepare("SELECT * FROM " . $this->itemsTable . " WHERE diteruskan_kepada LIKE ?");
-				$searchTerm = '%' . $level . '%';
-				$stmt->bind_param("s", $searchTerm);
-			}
+			// } else {
+			// 	$stmt = $this->conn->prepare("SELECT * FROM " . $this->itemsTable . " WHERE diteruskan_kepada LIKE ?");
+			// 	$searchTerm = '%' . $level . '%';
+			// 	$stmt->bind_param("s", $searchTerm);
+			// }
 		}
 		$stmt->execute();
 		$result = $stmt->get_result();

@@ -13,20 +13,31 @@ include_once '../class/Surat_Masuk.php';
 $database = new Database();
 $db = $database->getConnection();
 
-$suratMasuk = new Surat_Masuk($db);
 
-$data = json_decode(file_get_contents("php://input"));
-
-if (!empty($data->id)) {
-	$suratMasuk->id = $data->id;
-	if ($suratMasuk->delete()) {
-		http_response_code(200);
-		echo json_encode(array("message" => "Item was deleted."));
+$headers = getallheaders();
+$token = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+if (!empty($token)) {
+	if (validateToken($db, $token)) {
+		$suratMasuk = new Surat_Masuk($db);
+		$data = json_decode(file_get_contents("php://input"));
+		if (!empty($data->id)) {
+			$suratMasuk->id = $data->id;
+			if ($suratMasuk->delete()) {
+				http_response_code(200);
+				echo json_encode(array("message" => "Item was deleted."));
+			} else {
+				http_response_code(503);
+				echo json_encode(array("message" => "Unable to delete item."));
+			}
+		} else {
+			http_response_code(400);
+			echo json_encode(array("message" => "Unable to delete items. Data is incomplete."));
+		}
 	} else {
-		http_response_code(503);
-		echo json_encode(array("message" => "Unable to delete item."));
+		http_response_code(401);
+		echo json_encode(array("message" => "Token tidak valid atau sudah kadaluarsa."));
 	}
 } else {
-	http_response_code(400);
-	echo json_encode(array("message" => "Unable to delete items. Data is incomplete."));
+	http_response_code(401);
+	echo json_encode(array("message" => "Token tidak ditemukan dalam header."));
 }

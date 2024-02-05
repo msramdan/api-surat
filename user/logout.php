@@ -13,7 +13,6 @@ $db = $database->getConnection();
 
 $headers = getallheaders();
 $token = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
 if (!empty($token)) {
     if (validateToken($db, $token)) {
         $tokenParts = explode(" ", $token);
