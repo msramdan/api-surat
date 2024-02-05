@@ -9,6 +9,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 include_once '../config/Database.php';
 include_once '../class/Surat_Masuk.php';
+include_once '../config/token_validation.php';
 
 $database = new Database();
 $db = $database->getConnection();
